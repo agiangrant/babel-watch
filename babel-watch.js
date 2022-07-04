@@ -117,6 +117,8 @@ program.on('--help', () => {
   `);
 });
 program.parse(process.argv);
+console.log(process.argv);
+console.log(program.extensions);
 
 const cwd = process.cwd();
 
@@ -125,7 +127,7 @@ const ignore = program.ignore;
 const configFile = program.configFile ? path.resolve(cwd, program.configFile) : undefined;
 const rootMode = program.rootMode;
 // We always transpile the default babel extensions. The option only adds more.
-const transpileExtensions = babel.DEFAULT_EXTENSIONS.concat(program.extensions.map((ext) => ext.trim()));
+const transpileExtensions = babel.DEFAULT_EXTENSIONS.concat((program.extensions || []).map((ext) => ext.trim()));
 const debug = Boolean(program.debug || program.debugBrk || program.inspect || program.inspectBrk)
 const restartTimeout = Number.isFinite(program.restartTimeout) ? program.restartTimeout : 2000;
 
