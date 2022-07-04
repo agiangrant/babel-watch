@@ -9,7 +9,7 @@ import os from 'os';
 import { fork } from 'child_process';
 import util from 'util';
 import { execSync} from 'child_process';
-import commander from 'commander/esm.mjs';
+import { program } from 'commander/esm.mjs';
 import debounce from 'lodash.debounce';
 import isString from 'lodash.isstring';
 import isRegExp from 'lodash.isregexp';
@@ -24,8 +24,6 @@ const debugCompile = Debug('babel-watch:compile');
 const debugWatcher = Debug('babel-watch:watcher');
 
 const DEBOUNCE_DURATION = 100; //milliseconds
-
-const program = new commander.Command("babel-watch");
 
 function collect(val, memo) {
   memo.push(val);
