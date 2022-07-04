@@ -92,7 +92,7 @@ function replaceExtensionHooks(extensions) {
   }
 }
 
-process.on('message', (options) => {
+process.on('message', async (options) => {
   if (!options || options.event !== 'babel-watch-start') return;
   replaceExtensionHooks(options.transpileExtensions);
   sourceMapSupport.install({
@@ -116,5 +116,5 @@ process.on('message', (options) => {
   pipeFd = fs.openSync(options.pipe, 'r');
   process.argv = ["node"].concat(options.args);
   // $FlowIgnore doesn't recognize 'module' as it is internal
-  require('module').runMain();
+  (await import('module')).runMain();
 });
