@@ -19,6 +19,12 @@ import { parseArgsStringToArgv as stringArgv } from 'string-argv';
 
 import pkg from './package.json' assert { type: 'json' };
 
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const debugInit = Debug('babel-watch:init');
 const debugCompile = Debug('babel-watch:compile');
 const debugWatcher = Debug('babel-watch:watcher');
