@@ -3,6 +3,7 @@
   "version": "7.7.0",
   "description": "Reload your babel-node app on JS source file changes. And do it *fast*.",
   "main": "babel-watch.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -34,14 +35,14 @@
   },
   "homepage": "https://github.com/kmagiera/babel-watch#readme",
   "dependencies": {
-    "chalk": "^4.1.0",
-    "chokidar": "^3.4.3",
-    "commander": "^6.2.0",
-    "debug": "^4.3.1",
+    "chalk": "^5.0.1",
+    "chokidar": "^3.5.3",
+    "commander": "^9.3.0",
+    "debug": "^4.3.4",
     "lodash.debounce": "^4.0.8",
     "lodash.isregexp": "^4.0.1",
     "lodash.isstring": "^4.0.1",
-    "source-map-support": "^0.5.19",
+    "source-map-support": "^0.5.21",
     "string-argv": "^0.3.1"
   },
   "peerDependencies": {
@@ -51,7 +52,7 @@
     "babel-watch": "./babel-watch.js"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.10",
-    "flow-bin": "^0.141.0"
+    "@babel/core": "^7.18.6",
+    "flow-bin": "^0.181.2"
   }
 }

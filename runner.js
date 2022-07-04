@@ -1,8 +1,8 @@
 // @flow
 
-const path = require('path');
-const fs = require('fs');
-const sourceMapSupport = require('source-map-support');
+import path from 'path';
+import fs from 'fs';
+import sourceMapSupport from 'source-map-support';
 
 let sources = {};
 let maps = {};

@@ -1,23 +1,23 @@
 #!/usr/bin/env node
 // @flow
 
-'use strict';
+import chokidar from 'chokidar';
+import path from 'path';
+import babel from '@babel/core';
+import fs from 'fs';
+import os from 'os';
+import { fork } from 'child_process';
+import util from 'util';
+import { execSync} from 'child_process';
+import commander from 'commander';
+import debounce from 'lodash.debounce';
+import isString from 'lodash.isstring';
+import isRegExp from 'lodash.isregexp';
+import chalk from 'chalk';
+import Debug from 'debug';
+import { parseArgsStringToArgv as stringArgv } from 'string-argv';
 
-const chokidar = require('chokidar');
-const path = require('path');
-const babel = require('@babel/core');
-const fs = require('fs');
-const os = require('os');
-const fork = require('child_process').fork;
-const util = require('util');
-const execSync = require('child_process').execSync;
-const commander = require('commander');
-const debounce = require('lodash.debounce');
-const isString = require('lodash.isstring');
-const isRegExp = require('lodash.isregexp');
-const chalk = require('chalk');
-const Debug = require('debug');
-const stringArgv = require('string-argv').parseArgsStringToArgv;
+import pkg from './package.json';
 
 const debugInit = Debug('babel-watch:init');
 const debugCompile = Debug('babel-watch:compile');
@@ -78,8 +78,6 @@ program.option('--restart-timeout <ms>', 'Set the maximum time to wait before fo
 program.option('--no-colors', 'Don\'t use console colors');
 program.option('--restart-command <command>', 'Set a string to issue a manual restart. Set to `false` to pass stdin directly to process.', booleanify, 'rs');
 program.option('--no-debug-source-maps', 'When using "--inspect" options, inline source-maps are automatically turned on. Set this option to disable that behavior')
-
-const pkg = require('./package.json');
 program.version(pkg.version);
 program.usage('[options] [script.js] [args]');
 program.description('babel-watch is a babel-js node app runner that lets you reload the app on JS source file changes.');
