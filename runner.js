@@ -11,7 +11,7 @@ let pipeFd;
 const BUFFER = new Buffer.alloc(10 * 1024);
 
 // $FlowIgnore Flow doesn't recognize require.extensions
-const reqExtensions/*: any */ = require.extensions;
+const reqExtensions/*: any */ = { '.js': () => {} };
 
 // Node by default uses '.js' loader to load all the files with unknown extensions
 const DEFAULT_LOADER = reqExtensions['.js'];
