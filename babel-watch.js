@@ -9,7 +9,7 @@ import os from 'os';
 import { fork } from 'child_process';
 import util from 'util';
 import { execSync} from 'child_process';
-import * as commander from 'commander';
+import commander from 'commander/esm.mjs';
 import debounce from 'lodash.debounce';
 import isString from 'lodash.isstring';
 import isRegExp from 'lodash.isregexp';
