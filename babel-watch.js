@@ -118,14 +118,16 @@ program.parse(process.argv);
 
 const cwd = process.cwd();
 
-const only = program.only;
-const ignore = program.ignore;
-const configFile = program.configFile ? path.resolve(cwd, program.configFile) : undefined;
-const rootMode = program.rootMode;
+const options = program.opts();
+
+const only = options.only;
+const ignore = options.ignore;
+const configFile = options.configFile ? path.resolve(cwd, options.configFile) : undefined;
+const rootMode = options.rootMode;
 // We always transpile the default babel extensions. The option only adds more.
-const transpileExtensions = babel.DEFAULT_EXTENSIONS.concat((program.extensions || []).map((ext) => ext.trim()));
-const debug = Boolean(program.debug || program.debugBrk || program.inspect || program.inspectBrk)
-const restartTimeout = Number.isFinite(program.restartTimeout) ? program.restartTimeout : 2000;
+const transpileExtensions = babel.DEFAULT_EXTENSIONS.concat((options.extensions || []).map((ext) => ext.trim()));
+const debug = Boolean(options.debug || options.debugBrk || options.inspect || options.inspectBrk)
+const restartTimeout = Number.isFinite(options.restartTimeout) ? options.restartTimeout : 2000;
 
 const mainModule = program.args[0];
 if (!mainModule) {
@@ -143,13 +145,13 @@ const cache = {};
 const errors = {};
 const ignored = {};
 
-const watcher = chokidar.watch(program.watch, {
+const watcher = chokidar.watch(options.watch, {
   persistent: true,
-  ignored: program.exclude,
+  ignored: options.exclude,
   ignoreInitial: true,
-  usePolling: program.usePolling,
+  usePolling: options.usePolling,
 });
-let watcherInitialized = (program.watch.length === 0);
+let watcherInitialized = (options.watch.length === 0);
 debugInit('Initializing babel-watch with options: %j', program.opts());
 
 process.on('SIGINT', function() {
@@ -176,11 +178,11 @@ watcher.on('error', error => {
 });
 
 // Restart the app when a sequence of keys has been pressed ('rs' by refault)
-if (program.restartCommand) {
+if (options.restartCommand) {
   const stdin = process.stdin;
   stdin.setEncoding('utf8');
   stdin.on('data', (data) => {
-    if (String(data).trim() === program.restartCommand) {
+    if (String(data).trim() === options.restartCommand) {
       restartApp();
     }
   });
@@ -326,9 +328,11 @@ function killApp(cb) {
 function restartApp() {
   if (!watcherInitialized) return;
   if (childApp) {
-    if (program.clearConsole) console.clear();
-    else if (program.message) {
-      let message = program.message;
+    const options = program.opts();
+
+    if (options.clearConsole) console.clear();
+    else if (options.message) {
+      let message = options.message;
       // Include changed files when possible.
       if (message.includes('%s')) message = util.format(message, changedFiles.join(','));
       log(message);
@@ -342,7 +346,9 @@ function restartApp() {
 }
 
 function log(...msg) {
-  const preamble = program.colors ? chalk.blue.bold.underline('babel-watch:') : '>>> babel-watch:';
+  const options = program.opts()
+
+  const preamble = options.colors ? chalk.blue.bold.underline('babel-watch:') : '>>> babel-watch:';
   console.log(preamble, ...msg);
 }
 
@@ -351,6 +357,8 @@ function restartAppInternal() {
     // There were some transpilation errors, don't start unless solved or invalid file is removed
     return;
   }
+
+  const options = program.opts();
 
   changedFiles = []; // reset state
   pipeFilename = generateTempFilename();
@@ -373,35 +381,35 @@ function restartAppInternal() {
 
   // Support for --debug option
   const runnerExecArgv = process.execArgv.slice();
-  if (program.debug) {
-    runnerExecArgv.push(typeof(program.debug) === 'boolean'
+  if (options.debug) {
+    runnerExecArgv.push(typeof(options.debug) === 'boolean'
       ? `--debug`
-      : `--debug=${program.debug}`
+      : `--debug=${options.debug}`
     )
   }
   // Support for --debug-brk option
-  if (program.debugBrk) {
+  if (options.debugBrk) {
     runnerExecArgv.push('--debug-brk');
   }
   // Support for --inspect option
-  if (program.inspect) {
+  if (options.inspect) {
     // Somehow, the default port (2992) is being passed from the node command line. Wipe it out.
-    const inspectArg = typeof(program.inspect) === 'boolean'
+    const inspectArg = typeof(options.inspect) === 'boolean'
      ? `--inspect`
-     : `--inspect=${program.inspect}`
+     : `--inspect=${options.inspect}`
     runnerExecArgv.push(inspectArg);
   }
   // Support for --inspect-brk option
-  if (program.inspectBrk) {
-    const inspectBrkArg = typeof(program.inspectBrk) === 'boolean'
+  if (options.inspectBrk) {
+    const inspectBrkArg = typeof(options.inspectBrk) === 'boolean'
     ? `--inspect-brk`
-    : `--inspect-brk=${program.inspectBrk}`
+    : `--inspect-brk=${options.inspectBrk}`
     runnerExecArgv.push(inspectBrkArg)
   }
 
-  if (program.beforeRestart) {
-    log(`Running command "${program.beforeRestart}" before restart.`);
-    execSync(program.beforeRestart, {stdio: 'inherit'}); // pass stdio to console
+  if (options.beforeRestart) {
+    log(`Running command "${options.beforeRestart}" before restart.`);
+    execSync(options.beforeRestart, {stdio: 'inherit'}); // pass stdio to console
   }
 
   // Pass options into execargv for easy use of options like `--trace-exit`.
@@ -419,7 +427,7 @@ function restartAppInternal() {
   app.on('message', (data) => {
     if (!data || data.event !== 'babel-watch-filename') return;
     const filename = data.filename;
-    if (!program.disableAutowatch) {
+    if (!options.disableAutowatch) {
       // use relative path for watch.add as it would let chokidar reconsile exclude patterns
       const relativeFilename = path.relative(cwd, filename);
       watcher.add(relativeFilename);
@@ -454,9 +462,9 @@ function restartAppInternal() {
   app.send({
     event: 'babel-watch-start',
     pipe: pipeFilename,
-    args: program.args,
+    args: options.args,
     debug,
-    handleUncaughtExceptions: !program.disableExHandler,
+    handleUncaughtExceptions: !options.disableExHandler,
     transpileExtensions,
   });
   pipeFd = fs.openSync(pipeFilename, 'w');
@@ -477,6 +485,7 @@ function shouldIgnore(filename) {
 }
 
 function compile(filename, callback) {
+  const options = program.opts();
   const opts = new babel.OptionManager().init({ filename, ignore, only, configFile, rootMode });
 
   // If opts is not present, the file is ignored, either by explicit input into
@@ -487,7 +496,7 @@ function compile(filename, callback) {
   // Do not process config files since has already been done with the OptionManager
   // calls above and would introduce duplicates.
   opts.babelrc = false;
-  opts.sourceMaps = (debug && program.debugSourceMaps) ?  'inline' : true;
+  opts.sourceMaps = (debug && options.debugSourceMaps) ?  'inline' : true;
   opts.ast = false;
 
   return babel.transformFile(filename, opts, (err, result) => {
