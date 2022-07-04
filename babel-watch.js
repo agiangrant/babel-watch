@@ -17,7 +17,7 @@ import chalk from 'chalk';
 import Debug from 'debug';
 import { parseArgsStringToArgv as stringArgv } from 'string-argv';
 
-import pkg from './package.json';
+import pkg from './package.json' assert { type: 'json' };
 
 const debugInit = Debug('babel-watch:init');
 const debugCompile = Debug('babel-watch:compile');
